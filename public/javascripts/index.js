@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', event => {
     map.setView(initialLocation, 16);
 
     if (savedLocation) {
-        drawMbMarker(savedLocation);
+        moveMbMarker(savedLocation);
     }
     
     document.querySelector('#locate-me').addEventListener("click", e => {
@@ -45,14 +45,32 @@ document.addEventListener('DOMContentLoaded', event => {
     
     document.querySelector('#locate-mb').addEventListener("click", e => {
         map.setView(savedLocation, 16);
+        queryLocationFromServer();
     });
 
     map.on('contextmenu', e => {
-        drawMbMarker(e.latlng)
+        moveMbMarker(e.latlng)
         map.setView(e.latlng);
         confirmSave(e.latlng);
         
     });
+    function queryLocationFromServer() {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.addEventListener("load", function() {
+            if (this.status === 200) {
+                var response = JSON.parse(this.responseText);
+                if (response.result === "OK") {
+                    if (savedLocation != response.latlon) {
+                        savedLocation = response.latlon;
+                    }
+                    map.setView(savedLocation, 16);
+                    moveMbMarker(savedLocation);
+                }
+            }
+        });
+        xmlhttp.open("GET", "/load");
+        xmlhttp.send();
+    }
     function confirmSave(latlng) {
         window.setTimeout(() => {
             var confirmed = window.confirm('Tallenetaanko mesen sijainti?');
@@ -60,9 +78,9 @@ document.addEventListener('DOMContentLoaded', event => {
                 saveLocation(latlng);
             }
             else {
-                drawMbMarker(savedLocation);
+                moveMbMarker(savedLocation);
             }
-        }, 200);
+        }, 1200);
     };
     function saveLocation(latlng) {
         savedLocation = latlng;
@@ -70,7 +88,7 @@ document.addEventListener('DOMContentLoaded', event => {
         xmlhttp.addEventListener("load", function() {
             if (this.status === 200) {
                 if (JSON.parse(this.responseText).result === "OK") {
-                    window.alert("Paikka tallennettu!");
+                    window.alert("Sijainti tallennettu!");
                 }
             }
         });
@@ -86,7 +104,7 @@ document.addEventListener('DOMContentLoaded', event => {
             locationCircle.remove();
         }
     }
-    function drawMbMarker(latlng) {
+    function moveMbMarker(latlng) {
         if (mbMarker) {
             mbMarker.remove();
         }

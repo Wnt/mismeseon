@@ -22,5 +22,8 @@ app.post('/save', function(req, res) {
     res.json({result: "OK"});
     storedLocation = req.body;
 });
+app.get('/load', function(req, res) {
+    res.json({result: "OK", latlon: storedLocation});
+});
 
 module.exports = app;
