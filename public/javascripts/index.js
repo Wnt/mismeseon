@@ -1,3 +1,14 @@
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js', {scope: '/'})
+    .then(function(reg) {
+        // registration worked
+        console.log('Registration succeeded. Scope is ' + reg.scope);
+    }).catch(function(error) {
+        // registration failed
+        console.log('Registration failed with ' + error);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', event => {
     var map = L.map('map');
     var savedLocation = storedLocation;
@@ -7,14 +18,15 @@ document.addEventListener('DOMContentLoaded', event => {
         iconAnchor: [32, 32]
     });
     var locationMarker, locationCircle, mbMarker;
+    var factoryDefaultLocation = [60.4465235742797, 22.249444415651517];
+    var initialLocation = savedLocation ? savedLocation : factoryDefaultLocation;
 
     var Hydda_Full = L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        maxZoom: 18
     });
     Hydda_Full.addTo(map);
 
-    map.setView([60.4465235742797, 22.249444415651517], 16);
+    map.setView(initialLocation, 16);
 
     if (savedLocation) {
         drawMbMarker(savedLocation);
